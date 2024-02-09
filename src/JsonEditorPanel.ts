@@ -100,15 +100,16 @@ export class JsonEditorPanel {
         const scriptPath = vscode.Uri.joinPath(this._extensionUri, "jsoneditor", "jsoneditor.min.js");
         const scriptSrc = this._panel.webview.asWebviewUri(scriptPath);
 
-        const cssContainerPath = vscode.Uri.joinPath(this._extensionUri, "jsoneditor", "jsoneditor.container.min.css");
-        const cssContainerSrc = this._panel.webview.asWebviewUri(cssContainerPath);
-
         const cssPath = vscode.Uri.joinPath(this._extensionUri, "jsoneditor", "jsoneditor.min.css");
         const cssSrc = this._panel.webview.asWebviewUri(cssPath);
 
         const cssDarkPath = vscode.Uri.joinPath(this._extensionUri, "jsoneditor", "jsoneditor.dark.min.css");
         const cssDarkSrc = this._panel.webview.asWebviewUri(cssDarkPath);
         const darkTheme: string = theme === 'dark' ? `<link href="${cssDarkSrc}" rel="stylesheet" type="text/css">` : '';
+
+        let containerCss = "<style>#jsoneditor {position: absolute; height: 100%; width: 98%;";
+        if (theme !== 'dark') containerCss += "background-color: aliceblue;";
+        containerCss += '}</style>';
 
         return `
         <!DOCTYPE HTML>
@@ -117,7 +118,7 @@ export class JsonEditorPanel {
             <!-- when using the mode "code", it's important to specify charset utf-8 -->
             <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 
-            <link href="${cssContainerSrc}" rel="stylesheet" type="text/css">
+            ${containerCss}
             <link href="${cssSrc}" rel="stylesheet" type="text/css">
             ${darkTheme}
             <script src="${scriptSrc}"></script>
