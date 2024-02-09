@@ -1,6 +1,6 @@
 {
     "name": "vscode-json-editor-wsl",
-    "displayName": "Json Editor",
+    "displayName": "Json Editor for VS code - WSL",
     "description": "Generate a tree view editor of the active JSON document",
     "version": "0.3.0",
     "publisher": "pick68",
