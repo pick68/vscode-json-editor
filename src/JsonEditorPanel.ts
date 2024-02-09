@@ -1,6 +1,5 @@
 'use strict';
 
-import * as path from 'path';
 import * as vscode from 'vscode';
 import { configurationSettings } from './globals/enums';
 
@@ -11,20 +10,20 @@ export class JsonEditorPanel {
     private static readonly extensionPrefix: string = 'vscode-json-editor';
 
     private readonly _panel: vscode.WebviewPanel;
-    private readonly _extensionPath: string;
+    private readonly _extensionUri: vscode.ExtensionContext["extensionUri"];
     private _disposables: vscode.Disposable[] = [];
     private _currentEditor: vscode.TextEditor;
 
-    private constructor(extensionPath: string, column: vscode.ViewColumn, theme: string) {
-        this._extensionPath = extensionPath;
+    private constructor(extensionUri: vscode.ExtensionContext["extensionUri"], column: vscode.ViewColumn, theme: string) {
+        this._extensionUri = extensionUri;
         this._currentEditor = vscode.window.activeTextEditor;
         this._panel = vscode.window.createWebviewPanel(JsonEditorPanel.viewType, "Json editor", column, {
             enableScripts: true,
             localResourceRoots: [
-                vscode.Uri.file(path.join(this._extensionPath, 'jsoneditor'))
+                vscode.Uri.joinPath(this._extensionUri, 'jsoneditor')
             ]
         });
-        this._panel.webview.html = this.getHtmlForWebview(this._extensionPath, theme);
+        this._panel.webview.html = this.getHtmlForWebview(theme);
 
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
@@ -48,7 +47,7 @@ export class JsonEditorPanel {
     }
 
     // tslint:disable-next-line:function-name
-    public static CreateOrShow(extensionPath: string): void {
+    public static CreateOrShow(extensionUri: vscode.ExtensionContext["extensionUri"]): void {
         const column = vscode.ViewColumn.Three;
         const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration(this.extensionPrefix);
         const theme: string = config.get(configurationSettings.theme);
@@ -56,7 +55,7 @@ export class JsonEditorPanel {
         if (JsonEditorPanel.currentPanel) {
             JsonEditorPanel.currentPanel._panel.reveal(column);
         } else {
-            JsonEditorPanel.currentPanel = new JsonEditorPanel(extensionPath, column, theme);
+            JsonEditorPanel.currentPanel = new JsonEditorPanel(extensionUri, column, theme);
         }
     }
 
@@ -94,18 +93,22 @@ export class JsonEditorPanel {
         this._panel.webview.postMessage({ json: json });
     }
 
-    private getHtmlForWebview(extensionPath: string, theme: string): string {
-        const mainScriptPathOnDisk = vscode.Uri.file(path.join(extensionPath, 'jsoneditor', 'main.js'));
-        const mainScriptUri = mainScriptPathOnDisk.with({ scheme: 'vscode-resource' });
-        const scriptPathOnDisk = vscode.Uri.file(path.join(extensionPath, 'jsoneditor', 'jsoneditor.min.js'));
-        const scriptUri = scriptPathOnDisk.with({ scheme: 'vscode-resource' });
+    private getHtmlForWebview(theme: string): string {
+        const mainScriptPath = vscode.Uri.joinPath(this._extensionUri, "jsoneditor", "main.js");
+        const mainScriptSrc = this._panel.webview.asWebviewUri(mainScriptPath);
 
-        const cssPathOnDisk = vscode.Uri.file(path.join(extensionPath, 'jsoneditor', 'jsoneditor.min.css'));
-        const cssUri = cssPathOnDisk.with({ scheme: 'vscode-resource' });
+        const scriptPath = vscode.Uri.joinPath(this._extensionUri, "jsoneditor", "jsoneditor.min.js");
+        const scriptSrc = this._panel.webview.asWebviewUri(scriptPath);
 
-        const cssDarkPathOnDisk = vscode.Uri.file(path.join(extensionPath, 'jsoneditor', 'jsoneditor.dark.min.css'));
-        const cssDarkUri = cssDarkPathOnDisk.with({ scheme: 'vscode-resource' });
-        const darkTheme: string = theme === 'dark' ? `<link href="${cssDarkUri}" rel="stylesheet" type="text/css">` : '';
+        const cssContainerPath = vscode.Uri.joinPath(this._extensionUri, "jsoneditor", "jsoneditor.container.min.css");
+        const cssContainerSrc = this._panel.webview.asWebviewUri(cssContainerPath);
+
+        const cssPath = vscode.Uri.joinPath(this._extensionUri, "jsoneditor", "jsoneditor.min.css");
+        const cssSrc = this._panel.webview.asWebviewUri(cssPath);
+
+        const cssDarkPath = vscode.Uri.joinPath(this._extensionUri, "jsoneditor", "jsoneditor.dark.min.css");
+        const cssDarkSrc = this._panel.webview.asWebviewUri(cssDarkPath);
+        const darkTheme: string = theme === 'dark' ? `<link href="${cssDarkSrc}" rel="stylesheet" type="text/css">` : '';
 
         return `
         <!DOCTYPE HTML>
@@ -114,14 +117,15 @@ export class JsonEditorPanel {
             <!-- when using the mode "code", it's important to specify charset utf-8 -->
             <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 
-            <link href="${cssUri}" rel="stylesheet" type="text/css">
+            <link href="${cssContainerSrc}" rel="stylesheet" type="text/css">
+            <link href="${cssSrc}" rel="stylesheet" type="text/css">
             ${darkTheme}
-            <script src="${scriptUri}"></script>
+            <script src="${scriptSrc}"></script>
         </head>
         <body>
             <div id="jsoneditor"></div>
 
-            <script src="${mainScriptUri}"></script>
+            <script src="${mainScriptSrc}"></script>
         </body>
         </html>
         `;

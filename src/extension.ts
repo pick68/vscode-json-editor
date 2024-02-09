@@ -8,7 +8,7 @@ import { JsonEditorPanel } from './JsonEditorPanel';
 export function activate(context: vscode.ExtensionContext): void {
 
     const startCommand = vscode.commands.registerCommand('vscode-json-editor.start', () => {
-        JsonEditorPanel.CreateOrShow(context.extensionPath);
+        JsonEditorPanel.CreateOrShow(context.extensionUri);
     });
 
     context.subscriptions.push(startCommand);

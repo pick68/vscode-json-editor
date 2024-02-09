@@ -3,7 +3,7 @@
     "displayName": "Json Editor",
     "description": "Generate a tree view editor of the active JSON document",
     "version": "0.3.0",
-    "publisher": "nickdemayo",
+    "publisher": "pick68",
     "engines": {
         "vscode": "^1.24.0"
     },
@@ -11,7 +11,7 @@
     "categories": [
         "Other"
     ],
-    "homepage": "https://github.com/sunmorgus/vscode-json-editor",
+    "homepage": "https://github.com/pick68/vscode-json-editor",
     "keywords": [
         "json",
         "editor",
@@ -19,13 +19,12 @@
         "preview"
     ],
     "activationEvents": [
-        "onLanguage:json",
-        "onCommand:vscode-json-editor.start"
+        "onLanguage:json"
     ],
     "main": "./out/src/extension",
     "repository": {
         "type": "git",
-        "url": "https://github.com/sunmorgus/vscode-json-editor.git"
+        "url": "https://github.com/pick68/vscode-json-editor.git"
     },
     "contributes": {
         "commands": [
@@ -54,17 +53,12 @@
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
-        "@types/mocha": "^2.2.42",
-        "@types/node": "^7.0.43",
-        "aqua": "^1.0.1",
-        "tslint": "^5.8.0",
-        "tslint-microsoft-contrib": "^5.0.3",
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.6"
+        "@types/node": "^20.11.17",
+        "@types/vscode": "^1.86.0",
+        "typescript": "^5.3.3"
     },
     "dependencies": {}
 }
